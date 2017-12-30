@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<project name="lang" default="parser">
+
+	<!-- ANTLR version -->
+	<property name="antlr.version" value="4.5" />
+
+	<!-- MapLang parser -->
+	<target name="maplang-check-parser">
+		<condition property="maplang.parser.uptodate">
+			<and>
+				<uptodate srcfile="src/maplang/MapLang.g" targetfile="src/maplang/parser/MapLangParser.java" />
+				<uptodate srcfile="src/maplang/MapLang.g" targetfile="src/maplang/parser/MapLangLexer.java" />
+				<uptodate srcfile="src/maplang/MapLang.g" targetfile="src/maplang/parser/MapLangListener.java" />
+			</and>
+		</condition>
+	</target>
+
+	<target name="maplang" depends="maplang-check-parser" unless="maplang.parser.uptodate">
+		<java jar="lib/antlr-${antlr.version}-complete.jar" dir="src/maplang/" fork="true" failonerror="true">
+			<arg value="-o" />
+			<arg value="parser/" />
+			<arg value="-no-listener" />
+			<arg value="-package" />
+			<arg value="maplang.parser; import static maplang.AST.*" />
+			<arg value="MapLang.g" />
+		</java>
+	</target>
+
+	<target name="parser" depends="maplang" >
+	</target>
+	
+</project>

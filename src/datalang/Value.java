@@ -9,27 +9,33 @@ import datalang.AST.*;
 
 public interface Value {
 	public String tostring();
-	static class EventVal implements Value {
-		private List<String> _contexts;
-		private List<Exp> _handlers;
-		private List<Env<Value>> _handler_envs;
-		public EventVal(List<String> contexts) {
-			_contexts = contexts;
-			_handlers = new ArrayList<Exp>();
-			_handler_envs = new ArrayList<Env<Value>>();
+	static class AggregatorVal implements Value {
+		private Value _defvalue;
+		private List<String> _formals;
+		private Exp _body;
+		private Env<Value> _body_env;
+		private List<List<Value>> _aggregated_values; 
+		public AggregatorVal(Value defvalue, List<String> contexts, Exp body, Env<Value> body_env) {
+			_defvalue = defvalue;
+			_formals = contexts;
+			_body = body;
+			_body_env = body_env;
+			_aggregated_values = new ArrayList<>();
 		}
-		public List<String> contexts() { return _contexts; }
-		public List<Exp> handlers() { return _handlers; }
-		public List<Env<Value>> handler_envs() { return _handler_envs; }
-		public void register(Exp handler, Env<Value> handler_env){
-			_handlers.add(handler);
-			_handler_envs.add(handler_env);
+		public Value defvalue() { return _defvalue; }
+		public List<String> contexts() { return _formals; }
+		public Exp body() { return _body; }
+		public Env<Value> aggregator_env() { return _body_env; }
+		public List<List<Value>> aggregated_values() { return _aggregated_values; }
+		
+		public void aggregate(List<Value> aggregated_values){
+			_aggregated_values.add(aggregated_values);
 		}
 
 		public String tostring() { 
-			String result = "(event ";
-			for(String context : _contexts) 
-				result += context + " ";
+			String result = "(output (";
+			for(String formal : _formals) 
+				result += formal + " ";
 			result += ") ";
 			return result + ")";
 		}
@@ -88,7 +94,7 @@ public interface Value {
 		private java.lang.String _val;
 		public StringVal(String v) { _val = v; } 
 		public String v() { return _val; }
-		public java.lang.String tostring() { return "" + _val; }
+		public java.lang.String tostring() { return "" + _val;}
 	}
 	static class PairVal implements Value {
 		protected Value _fst;

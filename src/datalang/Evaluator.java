@@ -14,7 +14,9 @@ import datalang.Value.UnitVal;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 
 public class Evaluator implements Visitor<Value, Value> {
@@ -473,8 +475,29 @@ public class Evaluator implements Visitor<Value, Value> {
 		for(int index=0; index < aggregator_exps.size(); index++) {
 			body_env = new ExtendEnv<>(body_env, names.get(index), aggregators.get(index));
 		}
-		// Run the body in this environment. TODO: this needs to be done N number of times.
-		Value result = e.body().accept(this, body_env);
+		
+		// If input, run the body for each input
+		Value result = e.input().accept(this, env);
+		if (result instanceof StringVal) {
+			String fileName = ((StringVal) result).v();
+			try (BufferedReader br = new BufferedReader(
+					new FileReader(Reader.getProgramDirectory() + fileName))) {
+				String line = br.readLine();
+				while (line != null) {
+					try {
+						result = new NumVal(Double.parseDouble(line));
+					} catch (NumberFormatException ex) {
+						result = new StringVal(line);
+					}
+					body_env = new ExtendEnv<>(body_env, "arg", result);
+					e.body().accept(this, body_env);
+					line = br.readLine();
+				}
+			} catch (IOException exception) {
+				throw new ProgramError(exception.getMessage());
+			}
+		} else
+			e.body().accept(this, body_env);
 		
 		// Run the aggregation function for each aggregator
 		List<Value> aggregated_results = new ArrayList<>(); 

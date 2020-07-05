@@ -1,8 +1,15 @@
-(define hello 
-	(output (message) (print message))
-)
-
-(seq
-	(<< hello "Hello")
-	(<< hello "World")
+(job 
+	(
+		(hello 
+			(output ("" message) 
+				(+ result message)
+			)
+		)
+	)
+	(seq
+		(<< hello "Hello")
+		(<< hello " ")
+		(<< hello "World")
+		(<< hello "!")
+	)
 )

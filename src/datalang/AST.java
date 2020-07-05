@@ -3,9 +3,6 @@ package datalang;
 import java.util.ArrayList;
 import java.util.List;
 
-import datalang.Env;
-
-
 /**
  * This class hierarchy represents expressions in the abstract syntax tree
  * manipulated by this interpreter.
@@ -13,10 +10,9 @@ import datalang.Env;
  * @author hridesh
  * 
  */
-@SuppressWarnings("rawtypes")
 public interface AST {
 	public static abstract class ASTNode implements AST {
-		public abstract Object accept(Visitor visitor, Env env);
+		public abstract <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError;
 	}
 	public static class Program extends ASTNode {
 		List<DefineDecl> _decls;
@@ -35,10 +31,18 @@ public interface AST {
 			return _decls;
 		}
 		
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
+	
+	@SuppressWarnings("serial")
+	public static class ProgramError extends Exception {
+		public ProgramError(String message) {
+			super(message);
+		}
+	}
+
 	public static abstract class Exp extends ASTNode {
 
 	}
@@ -54,7 +58,7 @@ public interface AST {
 			return _name;
 		}
 		
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -63,7 +67,7 @@ public interface AST {
 		
 		public UnitExp() {}
 
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 
@@ -80,7 +84,7 @@ public interface AST {
 			return _val;
 		}
 		
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -96,7 +100,7 @@ public interface AST {
 			return _val;
 		}
 		
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -112,7 +116,7 @@ public interface AST {
 			return _val;
 		}
 		
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -182,7 +186,7 @@ public interface AST {
 			super(left, right);
 		}
 		
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -205,7 +209,7 @@ public interface AST {
 			super(left, right);
 		}
 		
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -227,7 +231,7 @@ public interface AST {
 			super(left, right);
 		}
 		
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -249,7 +253,7 @@ public interface AST {
 			super(left, right);
 		}
 		
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -273,7 +277,7 @@ public interface AST {
 			_body = body;
 		}
 		
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 		
@@ -302,7 +306,7 @@ public interface AST {
 			_value_exp = value_exp;
 		}
 		
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 		
@@ -331,7 +335,7 @@ public interface AST {
 		
 		public Exp body() { return _body; }
 		
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -355,7 +359,7 @@ public interface AST {
 
 		public List<Exp> operands() { return _operands; }
 		
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -383,7 +387,7 @@ public interface AST {
 		public Exp then_exp() { return _then_exp; }
 		public Exp else_exp() { return _else_exp; }
 		
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -401,7 +405,7 @@ public interface AST {
 			super(first_exp, second_exp);
 		}
 				
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -430,7 +434,7 @@ public interface AST {
 			super(first_exp, second_exp);
 		}
 		
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -448,7 +452,7 @@ public interface AST {
 			super(first_exp, second_exp);
 		}
 				
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -467,7 +471,7 @@ public interface AST {
 			_arg = arg;
 		}
 		public Exp arg() { return _arg; }
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -486,7 +490,7 @@ public interface AST {
 			_arg = arg;
 		}
 		public Exp arg() { return _arg; }
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -508,7 +512,7 @@ public interface AST {
 		}
 		public Exp fst() { return _fst; }
 		public Exp snd() { return _snd; }
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -527,7 +531,7 @@ public interface AST {
 			_elems = elems;
 		}
 		public List<Exp> elems() { return _elems; }
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -546,10 +550,115 @@ public interface AST {
 			_arg = arg;
 		}
 		public Exp arg() { return _arg; }
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
+
+    public static class IsBooleanExp extends Exp {
+    	private Exp e;
+    	public IsBooleanExp(Exp e){
+    		this.e=e;
+    	}
+    	Exp exp(){
+    		return this.e;
+    	}
+    	public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
+    		return visitor.visit(this, env);
+    	}
+    }
+    
+    public static class IsNumberExp extends Exp {
+    	private Exp e;
+    	public IsNumberExp(Exp e){
+    		this.e=e;
+    	}
+    	Exp exp(){
+    		return this.e;
+    	}
+    	public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
+    		return visitor.visit(this, env);
+    	}
+    }
+    
+    public static class IsStringExp extends Exp {
+    	private Exp e;
+    	public IsStringExp(Exp e){
+    		this.e=e;
+    	}
+    	Exp exp(){
+    		return this.e;
+    	}
+    	public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
+    		return visitor.visit(this, env);
+    	}
+    }
+    
+    public static class IsProcedureExp extends Exp {
+    	private Exp e;
+    	public IsProcedureExp(Exp e){
+    		this.e=e;
+    	}
+    	Exp exp(){
+    		return this.e;
+    	}
+    	public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
+    		return visitor.visit(this, env);
+    	}
+    }
+    
+    public static class IsUnitExp extends Exp {
+    	private Exp e;
+    	public IsUnitExp(Exp e){
+    		this.e=e;
+    	}
+    	Exp exp(){
+    		return this.e;
+    	}
+    	public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
+    		return visitor.visit(this, env);
+    	}
+    }
+    
+    public static class IsPairExp extends Exp {
+    	private Exp e;
+    	public IsPairExp(Exp e){
+    		this.e=e;
+    	}
+    	Exp exp(){
+    		return this.e;
+    	}
+    	public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
+    		return visitor.visit(this, env);
+    	}
+    }
+    
+    public static class IsListExp extends Exp {
+    	private Exp e;
+    	public IsListExp(Exp e){
+    		this.e=e;
+    	}
+    	Exp exp(){
+    		return this.e;
+    	}
+    	public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
+    		return visitor.visit(this, env);
+    	}
+    }
+
+    public static class IsNullExp extends Exp {
+    	private Exp e;
+    	public IsNullExp(Exp e){
+    		this.e=e;
+    	}
+
+    	Exp exp(){
+    		return this.e;
+    	}
+    	public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
+    		return visitor.visit(this, env);
+    	}
+    }
 
 	/**
 	 * Eval expression: evaluate the program that is _val
@@ -562,7 +671,7 @@ public interface AST {
 			_code = code;
 		}
 		public Exp code() { return _code; }
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -578,7 +687,7 @@ public interface AST {
 			_file = file;
 		}
 		public Exp file() { return _file; }
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 	}
@@ -602,7 +711,7 @@ public interface AST {
 			_body = body;
 		}
 		
-		public Object accept(Visitor visitor, Env env) {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
 			return visitor.visit(this, env);
 		}
 		
@@ -629,7 +738,7 @@ public interface AST {
                     _value_exp = value_exp;
             }
 
-            public Object accept(Visitor visitor, Env env) {
+            public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
                     return visitor.visit(this, env);
             }
 
@@ -652,7 +761,7 @@ public interface AST {
                     _loc_exp = loc_exp;
             }
 
-            public Object accept(Visitor visitor, Env env) {
+            public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
                     return visitor.visit(this, env);
             }
 
@@ -677,7 +786,7 @@ public interface AST {
                     _rhs_exp = rhs_exp;
             }
 
-            public Object accept(Visitor visitor, Env env) {
+            public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
                     return visitor.visit(this, env);
             }
 
@@ -701,158 +810,178 @@ public interface AST {
                     _value_exp = value_exp;
             }
 
-            public Object accept(Visitor visitor, Env env) {
+            public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
                     return visitor.visit(this, env);
             }
 
             public Exp value_exp() { return _value_exp; }
 
     }
-    
-    public static class IsBooleanExp extends Exp {
-    	private Exp e;
-    	public IsBooleanExp(Exp e){
-    		this.e=e;
-    	}
-    	Exp exp(){
-    		return this.e;
-    	}
-    	public Object accept(Visitor visitor, Env env) {
-    		return visitor.visit(this, env);
-    	}
-    }
-    
-    public static class IsNumberExp extends Exp {
-    	private Exp e;
-    	public IsNumberExp(Exp e){
-    		this.e=e;
-    	}
-    	Exp exp(){
-    		return this.e;
-    	}
-    	public Object accept(Visitor visitor, Env env) {
-    		return visitor.visit(this, env);
-    	}
-    }
-    
-    public static class IsStringExp extends Exp {
-    	private Exp e;
-    	public IsStringExp(Exp e){
-    		this.e=e;
-    	}
-    	Exp exp(){
-    		return this.e;
-    	}
-    	public Object accept(Visitor visitor, Env env) {
-    		return visitor.visit(this, env);
-    	}
-    }
-    
-    public static class IsProcedureExp extends Exp {
-    	private Exp e;
-    	public IsProcedureExp(Exp e){
-    		this.e=e;
-    	}
-    	Exp exp(){
-    		return this.e;
-    	}
-    	public Object accept(Visitor visitor, Env env) {
-    		return visitor.visit(this, env);
-    	}
-    }
-    
-    public static class IsUnitExp extends Exp {
-    	private Exp e;
-    	public IsUnitExp(Exp e){
-    		this.e=e;
-    	}
-    	Exp exp(){
-    		return this.e;
-    	}
-    	public Object accept(Visitor visitor, Env env) {
-    		return visitor.visit(this, env);
-    	}
-    }
-    
-    public static class IsPairExp extends Exp {
-    	private Exp e;
-    	public IsPairExp(Exp e){
-    		this.e=e;
-    	}
-    	Exp exp(){
-    		return this.e;
-    	}
-    	public Object accept(Visitor visitor, Env env) {
-    		return visitor.visit(this, env);
-    	}
-    }
-    
-    public static class IsListExp extends Exp {
-    	private Exp e;
-    	public IsListExp(Exp e){
-    		this.e=e;
-    	}
-    	Exp exp(){
-    		return this.e;
-    	}
-    	public Object accept(Visitor visitor, Env env) {
-    		return visitor.visit(this, env);
-    	}
-    }
 
-    public static class IsNullExp extends Exp {
-    	private Exp e;
-    	public IsNullExp(Exp e){
-    		this.e=e;
-    	}
 
-    	Exp exp(){
-    		return this.e;
-    	}
-    	public Object accept(Visitor visitor, Env env) {
-    		return visitor.visit(this, env);
-    	}
-    }
+    /**
+     * An announce expression has the syntax 
+     * 
+     *  (announce ev expression+)
+     *  
+     * @author hridesh
+     *
+     */
+	public static class AnnounceExp extends Exp {
+		Exp _event; 
+		List<Exp> _actuals;
+		
+		public AnnounceExp(Exp event, List<Exp> actuals) {
+			_event = event; 
+			_actuals = actuals;
+		}
+		
+		public Exp event() { return _event; }
+
+		public List<Exp> actuals() { return _actuals; }
+		
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
+			return visitor.visit(this, env);
+		}
+	}
+
 	
-	public interface Visitor <T> {
+	public static class EventExp extends Exp {
+		//String _name;
+		List<String> _contexts;
+		
+		//public EventExp(String name, List<String> contexts) {
+		public EventExp(List<String> contexts) {
+			//_name = name;
+			_contexts = contexts;
+		}
+		
+		//public String name() { return _name; }
+		public List<String> contexts() { return _contexts; }
+		
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
+			return visitor.visit(this, env);
+		}
+	}
+
+	/**
+	 * A when expression has the syntax 
+	 * 
+	 *  (when ev do expression)
+	 *  
+	 */
+	public static class WhenExp extends Exp {		
+		Exp _event;
+		Exp _body;
+		
+		public WhenExp(Exp event, Exp body) {
+			_event = event;
+			_body = body;
+		}
+		
+		public Exp event() { return _event; }
+		public Exp body() { return _body; }
+		
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
+			return visitor.visit(this, env);
+		}
+	}
+
+	/**
+	 * A print expression has the syntax 
+	 * 
+	 *  (print expression*)
+	 *  
+	 */
+	public static class PrintExp extends Exp {
+		private List<Exp> _expressions;
+
+		public PrintExp(List<Exp> expressions) {
+			_expressions = expressions; 
+		}
+
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
+			return visitor.visit(this, env);
+		}
+
+		public List<Exp> expressions() { return _expressions; }
+
+	}
+	
+	/**
+	 * A seq expression has the syntax
+	 * 
+	 * (seq exp0 exp1 exp2 ..)
+	 * 
+	 * @author hridesh
+	 *
+	 */
+	public static class SeqExp extends Exp {
+		private List<Exp> _expressions;
+		
+		public SeqExp(List<Exp> expressions) {
+			_expressions = expressions; 
+		}
+		
+		public List<Exp> expressions() { return _expressions; }
+		
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
+			return visitor.visit(this, env);
+		}
+	}
+
+
+	public static class ErrorExp extends Exp {
+		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
+			return visitor.visit(this, env);
+		}
+	}
+	
+	public interface Visitor <T, U> {
 		// This interface should contain a signature for each concrete AST node.
-		public T visit(AST.Program p, Env env);
-		public T visit(AST.UnitExp e, Env env);
-		public T visit(AST.NumExp e, Env env);
-		public T visit(AST.StrExp e, Env env);
-		public T visit(AST.BoolExp e, Env env);
-		public T visit(AST.AddExp e, Env env);
-		public T visit(AST.SubExp e, Env env);
-		public T visit(AST.MultExp e, Env env);
-		public T visit(AST.DivExp e, Env env);
-		public T visit(AST.VarExp e, Env env);
-		public T visit(AST.LetExp e, Env env); 
-		public T visit(AST.DefineDecl d, Env env); 
-		public T visit(AST.ReadExp e, Env env); 
-		public T visit(AST.EvalExp e, Env env); 
-		public T visit(AST.CarExp e, Env env); 
-		public T visit(AST.CdrExp e, Env env); 
-		public T visit(AST.ConsExp e, Env env); 
-		public T visit(AST.ListExp e, Env env); 
-		public T visit(AST.NullExp e, Env env); 
-		public T visit(AST.LambdaExp e, Env env); 
-		public T visit(AST.CallExp e, Env env); 
-		public T visit(AST.LetrecExp e, Env env); 
-		public T visit(AST.IfExp e, Env env); 
-		public T visit(AST.LessExp e, Env env); 
-		public T visit(AST.EqualExp e, Env env); 
-		public T visit(AST.GreaterExp e, Env env); 
-        public T visit(AST.IsNullExp e, Env env); 
-        public T visit(AST.IsProcedureExp e, Env env); 
-        public T visit(AST.IsListExp e, Env env); 
-        public T visit(AST.IsPairExp e, Env env); 
-        public T visit(AST.IsUnitExp e, Env env); 
-        public T visit(AST.IsNumberExp e, Env env); 
-        public T visit(AST.IsStringExp e, Env env); 
-        public T visit(AST.IsBooleanExp e, Env env); 
-		public T visit(AST.RefExp e, Env env); // New for the Reflang
-		public T visit(AST.DerefExp e, Env env); // New for the Reflang
-		public T visit(AST.AssignExp e, Env env); // New for the Reflang
-		public T visit(AST.FreeExp e, Env env); // New for the Reflang
+		public T visit(AST.AddExp e, Env<U> env) throws ProgramError;
+		public T visit(AST.UnitExp e, Env<U> env) throws ProgramError;
+		public T visit(AST.NumExp e, Env<U> env) throws ProgramError;
+		public T visit(AST.StrExp e, Env<U> env) throws ProgramError;
+		public T visit(AST.BoolExp e, Env<U> env) throws ProgramError;
+		public T visit(AST.DivExp e, Env<U> env) throws ProgramError;
+		public T visit(AST.ErrorExp e, Env<U> env) throws ProgramError;
+		public T visit(AST.MultExp e, Env<U> env) throws ProgramError;
+		public T visit(AST.Program p, Env<U> env) throws ProgramError;
+		public T visit(AST.SubExp e, Env<U> env) throws ProgramError;
+		public T visit(AST.VarExp e, Env<U> env) throws ProgramError;
+		public T visit(AST.LetExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.DefineDecl d, Env<U> env) throws ProgramError; 
+		public T visit(AST.ReadExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.EvalExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.LambdaExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.CallExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.LetrecExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.IfExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.LessExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.EqualExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.GreaterExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.CarExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.CdrExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.ConsExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.ListExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.NullExp e, Env<U> env) throws ProgramError; 
+        public T visit(AST.IsNullExp e, Env<U> env) throws ProgramError; 
+        public T visit(AST.IsProcedureExp e, Env<U> env) throws ProgramError; 
+        public T visit(AST.IsListExp e, Env<U> env) throws ProgramError; 
+        public T visit(AST.IsPairExp e, Env<U> env) throws ProgramError; 
+        public T visit(AST.IsUnitExp e, Env<U> env) throws ProgramError; 
+        public T visit(AST.IsNumberExp e, Env<U> env) throws ProgramError; 
+        public T visit(AST.IsStringExp e, Env<U> env) throws ProgramError; 
+        public T visit(AST.IsBooleanExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.RefExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.DerefExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.AssignExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.FreeExp e, Env<U> env) throws ProgramError;
+		public T visit(AST.EventExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.AnnounceExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.WhenExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.PrintExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.SeqExp e, Env<U> env) throws ProgramError; 
 	}	
 }

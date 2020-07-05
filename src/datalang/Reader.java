@@ -33,7 +33,7 @@ public class Reader {
 	}
 			
 	protected String getProgramDirectory() { 
-		String buildDir = "build" + java.io.File.separatorChar + "eventlang" + java.io.File.separatorChar + "examples" + java.io.File.separatorChar;
+		String buildDir = "build" + java.io.File.separatorChar + "datalang" + java.io.File.separatorChar + "examples" + java.io.File.separatorChar;
 		return buildDir; 
 	}
 	

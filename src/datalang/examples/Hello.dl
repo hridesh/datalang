@@ -1,0 +1,8 @@
+(define hello 
+	(output (message) (print message))
+)
+
+(seq
+	(<< hello "Hello")
+	(<< hello "World")
+)

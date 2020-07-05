@@ -879,17 +879,20 @@ public interface AST {
 	 *  (job aggregator* expression)
 	 *  
 	 */
-	public static class JobExp extends Exp {		
+	public static class JobExp extends Exp {
+		Exp _input;
 		List<String> _names;
 		List<Exp> _aggregators;
 		Exp _body;
 		
-		public JobExp(List<String> names, List<Exp> aggregators, Exp body) {
+		public JobExp(Exp input, List<String> names, List<Exp> aggregators, Exp body) {
+			_input = input;
 			_names = names;
 			_aggregators = aggregators;
 			_body = body;
 		}
 		
+		public Exp input() { return _input; }
 		public List<String> names() { return _names; }
 		public List<Exp> aggregators() { return _aggregators; }
 		public Exp body() { return _body; }

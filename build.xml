@@ -4,29 +4,29 @@
 	<!-- ANTLR version -->
 	<property name="antlr.version" value="4.5" />
 
-	<!-- MapLang parser -->
-	<target name="maplang-check-parser">
-		<condition property="maplang.parser.uptodate">
+	<!-- DataLang parser -->
+	<target name="datalang-check-parser">
+		<condition property="datalang.parser.uptodate">
 			<and>
-				<uptodate srcfile="src/maplang/MapLang.g" targetfile="src/maplang/parser/MapLangParser.java" />
-				<uptodate srcfile="src/maplang/MapLang.g" targetfile="src/maplang/parser/MapLangLexer.java" />
-				<uptodate srcfile="src/maplang/MapLang.g" targetfile="src/maplang/parser/MapLangListener.java" />
+				<uptodate srcfile="src/datalang/DataLang.g" targetfile="src/datalang/parser/MapLangParser.java" />
+				<uptodate srcfile="src/datalang/DataLang.g" targetfile="src/datalang/parser/MapLangLexer.java" />
+				<uptodate srcfile="src/datalang/DataLang.g" targetfile="src/datalang/parser/MapLangListener.java" />
 			</and>
 		</condition>
 	</target>
 
-	<target name="maplang" depends="maplang-check-parser" unless="maplang.parser.uptodate">
-		<java jar="lib/antlr-${antlr.version}-complete.jar" dir="src/maplang/" fork="true" failonerror="true">
+	<target name="datalang" depends="datalang-check-parser" unless="datalang.parser.uptodate">
+		<java jar="lib/antlr-${antlr.version}-complete.jar" dir="src/datalang/" fork="true" failonerror="true">
 			<arg value="-o" />
 			<arg value="parser/" />
 			<arg value="-no-listener" />
 			<arg value="-package" />
-			<arg value="maplang.parser; import static maplang.AST.*" />
-			<arg value="MapLang.g" />
+			<arg value="datalang.parser; import static datalang.AST.*" />
+			<arg value="DataLang.g" />
 		</java>
 	</target>
 
-	<target name="parser" depends="maplang" >
+	<target name="parser" depends="datalang" >
 	</target>
 
         <target name="compile" depends="parser">
@@ -40,16 +40,16 @@
 
         <target name="jar" depends="compile">
                 <mkdir dir="build/jar"/>
-                <jar destfile="build/jar/MapLang.jar" basedir="build/classes">
+                <jar destfile="build/jar/DataLang.jar" basedir="build/classes">
                         <zipgroupfileset dir="lib" includes="antlr-4.5-complete.jar" />
                         <manifest>
-                                <attribute name="Main-Class" value="maplang.Interpreter"/>
+                                <attribute name="Main-Class" value="datalang.Interpreter"/>
                         </manifest>
                 </jar>
         </target>
 
         <target name="run" depends="jar">
-                <java jar="build/jar/MapLang.jar" fork="true"/>
+                <java jar="build/jar/DataLang.jar" fork="true"/>
         </target>
 
         <target name="clean">

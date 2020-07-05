@@ -277,25 +277,31 @@ public class Printer {
         }
 		
 		@Override
-		public String visit(EventExp e, Env<Void> env) throws ProgramError {
-			String result = "(event (";
+		public String visit(AggregatorExp e, Env<Void> env) throws ProgramError {
+			String result = "(aggregator (";
 			for(String context : e.contexts())
 				result += context + " ";
-			return result + "))";
+			result += ") " + e.body().accept(this, env) + " ";
+			return result + ")";
 		}
 
 		@Override
-		public String visit(AnnounceExp e, Env<Void> env) throws ProgramError {
-			String result = "(announce ";
-			result += e.event() + " ";
+		public String visit(EmitExp e, Env<Void> env) throws ProgramError {
+			String result = "(<< ";
+			result += e.aggregator().accept(this, env) + " ";
 			for(AST.Exp exp : e.actuals())
 				result += exp.accept(this, env) + " ";
 			return result + ")";
 		}
 		
-		public String visit(AST.WhenExp e, Env<Void> env) throws ProgramError {
-			String result = "(when ( ";
-			result += e.event().accept(this, env);
+		@Override
+		public String visit(AST.JobExp e, Env<Void> env) throws ProgramError {
+			String result = "(job ";
+			List<String> names = e.names();
+			List<AST.Exp> aggregators = e.aggregators(); 
+			for(int index=0; index< names.size(); index++) {
+				result += names.get(index) + " " + aggregators.get(index).accept(this, env) + " ";
+			}
 			result += e.body().accept(this, env);
 			return result + ")";
 		}

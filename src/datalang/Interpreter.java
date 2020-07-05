@@ -16,11 +16,7 @@ import datalang.AST.ProgramError;
 public class Interpreter {
 	public static void main(String[] args) {
 		System.out.println("DataLang: Type a program to evaluate and press the enter key,\n" + 
-				"e.g. (define ev (event (a b)))  which creates an event\n" + 
-                "     (when ev do (+ a b)) which creates an observer expression\n" + 
-                "     (announce ev 2 3) which fires event ev \n" + 
-				"then try (when ev do (* a b)) which creates another observer \n" +
-				"then try (announce ev (2 3)) which fires event ev again (note the change).\n" +
+				"e.g. (job ((a (output (0 v) (+ result v)))) (seq (<< a 300) (<< a 40) (<< a 2)))\n" +
 				"Press Ctrl + C to exit.");
 		Reader reader = new Reader();
 		Evaluator eval = new Evaluator(reader);

@@ -1,0 +1,11 @@
+(job 
+	(input "Numbers.data")
+	(
+		(a (output (0 v) (+ result v)))
+		(m (output (1 v) (* result v)))
+	) 
+	(seq 
+		(<< a arg) 
+		(<< m arg) 
+	)
+)

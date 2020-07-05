@@ -3,13 +3,13 @@ import static datalang.AST.*;
 import static datalang.Value.*;
 import static datalang.Heap.*;
 
-import datalang.AST.AnnounceExp;
-import datalang.AST.EventExp;
+import datalang.AST.EmitExp;
+import datalang.AST.AggregatorExp;
 import datalang.AST.Exp;
 import datalang.AST.ProgramError;
-import datalang.AST.WhenExp;
+import datalang.AST.JobExp;
 import datalang.Env.*;
-import datalang.Value.EventVal;
+import datalang.Value.AggregatorVal;
 import datalang.Value.UnitVal;
 
 import java.util.List;
@@ -33,10 +33,17 @@ public class Evaluator implements Visitor<Value, Value> {
 	@Override
 	public Value visit(AddExp e, Env<Value> env) throws ProgramError {
 		List<Exp> operands = e.all();
-		double result = 0;
-		for(Exp exp: operands) {
-			NumVal intermediate = (NumVal) exp.accept(this, env); // Dynamic type-checking
-			result += intermediate.v(); //Semantics of AddExp in terms of the target language.
+		Value firstval = operands.get(0).accept(this, env);
+		if(firstval instanceof StringVal) {
+			String result = ((StringVal)firstval).v();
+			for(int index=1; index<operands.size(); index++) {
+				result += operands.get(index).accept(this, env).tostring();
+			}
+			return new StringVal(result);
+		}
+		double result = ((NumVal)firstval).v();
+		for(int index=1; index<operands.size(); index++) {
+			result += ((NumVal) operands.get(index).accept(this, env)).v(); 
 		}
 		return new NumVal(result);
 	}
@@ -425,47 +432,72 @@ public class Evaluator implements Visitor<Value, Value> {
 	}
 
 	@Override
-	public Value visit(EventExp e, Env<Value> env) throws ProgramError {
-		return new Value.EventVal(e.contexts());
+	public Value visit(AggregatorExp e, Env<Value> env) throws ProgramError {
+		Value defvalue = e._defvalue.accept(this, env);
+		return new AggregatorVal(defvalue, e.contexts(), e.body(), env);
 	}
 
 	@Override
-	public Value visit(AnnounceExp e, Env<Value> env) throws ProgramError {
-		Exp event_exp = e.event();
-		Object result = event_exp.accept(this, env);
-		if(!(result instanceof Value.EventVal))
-			throw new ProgramError("Non-event value cannot be announced in expression " +  ts.visit(e, null));
-		Value.EventVal event = (Value.EventVal) result;
-		if(!(e.actuals().size()== event.contexts().size()))
-			throw new ProgramError("Number of context variables do not match in announce expression " +  ts.visit(e, null));
+	public Value visit(EmitExp e, Env<Value> env) throws ProgramError {
+		Exp aggregator_exp = e.aggregator();
+		Value result = aggregator_exp.accept(this, env);
+		if(!(result instanceof Value.AggregatorVal))
+			throw new ProgramError("Expression not an aggregator in " +  ts.visit(e, null));
+		AggregatorVal aggregator = (AggregatorVal) result;
+		if(!(e.actuals().size()== aggregator.contexts().size()))
+			throw new ProgramError("Argument size mismatch in emit expression " +  ts.visit(e, null));
 
-		List<String> contexts = event.contexts();	
-		List<Value> actuals = new ArrayList<Value>(contexts.size());
-		for(Exp exp : e.actuals()) 
-			actuals.add((Value)exp.accept(this, env));
-
-		Value lastVal = new UnitVal();
-		List<Exp> handlers = event.handlers();
-		List<Env<Value>> handler_envs = event.handler_envs();
-		for(int handler_index=0; handler_index < handlers.size(); handler_index++) {
-			Env<Value> handler_env = handler_envs.get(handler_index);
-			for (int index = 0; index < actuals.size(); index++)
-				handler_env = new ExtendEnv<>(handler_env, contexts.get(index), actuals.get(index));
-			lastVal = (Value) handlers.get(handler_index).accept(this, handler_env);
+		List<Value> actuals = new ArrayList<Value>(e.actuals().size());
+		for(Exp exp : e.actuals()) {
+			Value arg_val = (Value)exp.accept(this, env); 
+			actuals.add(arg_val);
 		}
-		return lastVal;
+		aggregator.aggregate(actuals);
+
+		result = new Value.Null(); //Result of emit expression is the list of emitted values.
+		for(int i=e.actuals().size()-1; i>=0; i--) 
+			result = new PairVal(actuals.get(i), result);
+		return result; 
 	}
 
 	@Override
-	public Value visit(WhenExp e, Env<Value> env) throws ProgramError {
-		Exp event_exp = e.event();
-		Object result = event_exp.accept(this, env);
-		if(!(result instanceof Value.EventVal))
-			throw new ProgramError("Non-event value cannot be used in when expression " +  ts.visit(e, null));
-		EventVal event = (EventVal) result;
-		Exp handler = e.body();
-		event.register(handler, env);
-		return new UnitVal();
+	public Value visit(JobExp e, Env<Value> env) throws ProgramError {
+		// Construct each aggregator
+		List<Exp> aggregator_exps = e.aggregators();
+		List<Value> aggregators = new ArrayList<>(); 
+		for(Exp exp : aggregator_exps)
+			aggregators.add((Value) exp.accept(this, env)); 
+		// Extend environment to add mapping from aggregators to formals
+		List<String> names = e.names();
+		Env<Value> body_env = env;
+		for(int index=0; index < aggregator_exps.size(); index++) {
+			body_env = new ExtendEnv<>(body_env, names.get(index), aggregators.get(index));
+		}
+		// Run the body in this environment. TODO: this needs to be done N number of times.
+		Value result = e.body().accept(this, body_env);
+		
+		// Run the aggregation function for each aggregator
+		List<Value> aggregated_results = new ArrayList<>(); 
+		for(int index=0; index < aggregators.size(); index++) {
+			AggregatorVal aggregator = (AggregatorVal) aggregators.get(index);
+			Value agresult = aggregator.defvalue(); 
+			for(List<Value> values : aggregator.aggregated_values()) {
+				Env<Value> aggregator_env = aggregator.aggregator_env();
+				aggregator_env = new ExtendEnv<>(aggregator_env, "result", agresult);
+				List<String> args = aggregator.contexts(); 
+				for(int i=0; i < args.size(); i++) {
+					aggregator_env = new ExtendEnv<>(aggregator_env, args.get(i), values.get(i));
+				}
+				agresult = aggregator.body().accept(this, aggregator_env);
+			}
+			aggregated_results.add(agresult);
+		}
+		
+		// Value of aggregator is the list of values returned by aggregator
+		result = new Value.Null(); //Result of emit expression is the list of emitted values.
+		for(int i=aggregated_results.size()-1; i>=0; i--) 
+			result = new PairVal(aggregated_results.get(i), result);
+		return result;
 	}
 
 	@Override
@@ -475,7 +507,7 @@ public class Evaluator implements Visitor<Value, Value> {
 		for(Exp exp : expressions) 
 			result = new StringVal(result.v() + ((Value) exp.accept(this, env)).tostring());
 		new Printer().print((Value)result);
-		return new Value.UnitVal();
+		return result;
 	}
 
 	@Override

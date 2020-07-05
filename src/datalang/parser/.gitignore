@@ -2,3 +2,7 @@
 /MapLangLexer.java
 /MapLangLexer.tokens
 /MapLangParser.java
+/DataLang.tokens
+/DataLangLexer.java
+/DataLangLexer.tokens
+/DataLangParser.java

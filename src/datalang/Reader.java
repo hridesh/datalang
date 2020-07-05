@@ -32,7 +32,7 @@ public class Reader {
 		return new DataLangParser(s);
 	}
 			
-	protected String getProgramDirectory() { 
+	public static String getProgramDirectory() { 
 		String buildDir = "build" + java.io.File.separatorChar + "datalang" + java.io.File.separatorChar + "examples" + java.io.File.separatorChar;
 		return buildDir; 
 	}

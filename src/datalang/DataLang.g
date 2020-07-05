@@ -40,36 +40,41 @@ exp returns [Exp ast]:
         | deref=derefexp { $ast = $deref.ast; }
         | assign=assignexp { $ast = $assign.ast; }
         | free=freeexp { $ast = $free.ast; }
- // Begin: New Expressions for EventLang       
-        | ev=eventexp { $ast = $ev.ast; }
-        | an=announceexp { $ast = $an.ast; }
-        | wh=whenexp { $ast = $wh.ast; }
- // End: New Expressions for EventLang       
         | print=printexp { $ast = $print.ast; }
         | seq=seqexp { $ast = $seq.ast; }
+ // Begin: New Expressions for DataLang       
+        | ag=aggregatorexp { $ast = $ag.ast; }
+        | em=emitexp { $ast = $em.ast; }
+        | jb=jobexp { $ast = $jb.ast; }
+ // End: New Expressions for DataLang       
         ;
   
- // Begin: New Expressions for EventLang       
-eventexp returns [EventExp ast] 
-        locals [ArrayList<String> formals = new ArrayList<String>()] :
-        '(' Event
-            '(' (id=Identifier { $formals.add($id.text); } )* ')'
-        ')' { $ast = new EventExp($formals); }
-        ;
-
-announceexp returns [AnnounceExp ast] 
-        locals [ArrayList<Exp> arguments = new ArrayList<Exp>()] :
-        '(' Announce
-			ev=exp
-            ( e=exp { $arguments.add($e.ast); } )*
-        ')' { $ast = new AnnounceExp($ev.ast,$arguments); }
-        ;
-
-whenexp returns [WhenExp ast] :
- 		'(' When e1=exp
-			Do e2=exp
-		')' { $ast = new WhenExp($e1.ast, $e2.ast); }
+ // Begin: New Expressions for DataLang       
+jobexp returns [JobExp ast] 
+        locals [ArrayList<String> names, ArrayList<Exp> aggregators] 
+        @init { $names = new ArrayList<String>(); $aggregators = new ArrayList<Exp>(); } :
+ 		'(' Job 
+            '(' ( '(' id=Identifier { $names.add($id.text); } e=aggregatorexp { $aggregators.add($e.ast); } ')' )* ')'
+ 		    body=exp
+		')' { $ast = new JobExp($names, $aggregators, $body.ast); }
 		;	
+
+aggregatorexp returns [AggregatorExp ast] 
+        locals [ArrayList<String> formals = new ArrayList<String>()] :
+        '(' Aggregator
+            '(' def=exp (id=Identifier { $formals.add($id.text); } )* ')'
+			body=exp
+        ')' { $ast = new AggregatorExp($def.ast, $formals,$body.ast); }
+        ;
+
+emitexp returns [EmitExp ast] 
+        locals [ArrayList<Exp> arguments = new ArrayList<Exp>()] :
+        '(' Emit
+			ag=exp
+            ( e=exp { $arguments.add($e.ast); } )*
+        ')' { $ast = new EmitExp($ag.ast,$arguments); }
+        ;
+
  // End: New Expressions for EventLang       
 
  printexp returns [PrintExp ast]
@@ -252,7 +257,7 @@ whenexp returns [WhenExp ast] :
  		;
  
  strexp returns [StrExp ast] :
- 		s=StrLiteral { $ast = new StrExp($s.text); } 
+ 		s=StrLiteral { $ast = new StrExp($s.text.substring(1, $s.text.length() - 1)); } 
  		;
 
  boolexp returns [BoolExp ast] :
@@ -347,10 +352,9 @@ whenexp returns [WhenExp ast] :
  Print : 'print' ;
  Seq : 'seq' ;
  
- Event : 'event' ;
- Announce : 'announce' ;
- When : 'when' ;
- Do : 'do' ;
+ Aggregator : 'output' ;
+ Emit : '<<' ;
+ Job : 'job' ;
 
  Number : DIGIT+ ;
 

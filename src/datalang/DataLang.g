@@ -51,12 +51,13 @@ exp returns [Exp ast]:
   
  // Begin: New Expressions for DataLang       
 jobexp returns [JobExp ast] 
-        locals [ArrayList<String> names, ArrayList<Exp> aggregators] 
-        @init { $names = new ArrayList<String>(); $aggregators = new ArrayList<Exp>(); } :
+        locals [Exp input, ArrayList<String> names, ArrayList<Exp> aggregators] 
+        @init { $input = new UnitExp(); $names = new ArrayList<String>(); $aggregators = new ArrayList<Exp>(); } :
  		'(' Job 
+ 			( '(' Input in=exp { $input = $in.ast; } ')' )?
             '(' ( '(' id=Identifier { $names.add($id.text); } e=aggregatorexp { $aggregators.add($e.ast); } ')' )* ')'
  		    body=exp
-		')' { $ast = new JobExp($names, $aggregators, $body.ast); }
+		')' { $ast = new JobExp($input, $names, $aggregators, $body.ast); }
 		;	
 
 aggregatorexp returns [AggregatorExp ast] 
@@ -355,6 +356,7 @@ emitexp returns [EmitExp ast]
  Aggregator : 'output' ;
  Emit : '<<' ;
  Job : 'job' ;
+ Input : 'input' ;
 
  Number : DIGIT+ ;
 

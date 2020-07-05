@@ -1,8 +1,8 @@
-package maplang;
+package datalang;
 
 import java.util.List;
 
-import maplang.AST.Exp;
+import datalang.AST.Exp;
 
 public interface Value {
 	public String tostring();

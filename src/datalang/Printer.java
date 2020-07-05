@@ -1,8 +1,8 @@
-package maplang;
+package datalang;
 
 import java.util.List;
 
-import maplang.AST.*;
+import datalang.AST.*;
 
 public class Printer {
 	public void print(Value v) {

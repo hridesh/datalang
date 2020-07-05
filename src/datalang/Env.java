@@ -1,8 +1,8 @@
-package maplang;
+package datalang;
 
 import java.util.List;
 
-import maplang.Value.*;
+import datalang.Value.*;
 
 /**
  * Representation of an environment, which maps variables to values.

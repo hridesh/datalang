@@ -820,23 +820,23 @@ public interface AST {
 
 
     /**
-     * An announce expression has the syntax 
+     * An emit expression has the syntax 
      * 
-     *  (announce ev expression+)
+     *  (<< aggregator expression+)
      *  
      * @author hridesh
      *
      */
-	public static class AnnounceExp extends Exp {
-		Exp _event; 
+	public static class EmitExp extends Exp {
+		Exp _aggregator; 
 		List<Exp> _actuals;
 		
-		public AnnounceExp(Exp event, List<Exp> actuals) {
-			_event = event; 
+		public EmitExp(Exp event, List<Exp> actuals) {
+			_aggregator = event; 
 			_actuals = actuals;
 		}
 		
-		public Exp event() { return _event; }
+		public Exp aggregator() { return _aggregator; }
 
 		public List<Exp> actuals() { return _actuals; }
 		
@@ -846,17 +846,26 @@ public interface AST {
 	}
 
 	
-	public static class EventExp extends Exp {
-		//String _name;
+    /**
+     * An aggregator expression has the syntax 
+     * 
+     *  (aggregator (Identifier+) expression)
+     *  
+     * @author hridesh
+     *
+     */
+	public static class AggregatorExp extends Exp {
+		Exp _defvalue;
+		Exp _body;
 		List<String> _contexts;
 		
-		//public EventExp(String name, List<String> contexts) {
-		public EventExp(List<String> contexts) {
-			//_name = name;
+		public AggregatorExp(Exp defvalue, List<String> contexts, Exp body) {
+			_defvalue = defvalue;
+			_body = body;
 			_contexts = contexts;
 		}
 		
-		//public String name() { return _name; }
+		public Exp body() { return _body; }
 		public List<String> contexts() { return _contexts; }
 		
 		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
@@ -865,21 +874,24 @@ public interface AST {
 	}
 
 	/**
-	 * A when expression has the syntax 
+	 * A job expression has the syntax 
 	 * 
-	 *  (when ev do expression)
+	 *  (job aggregator* expression)
 	 *  
 	 */
-	public static class WhenExp extends Exp {		
-		Exp _event;
+	public static class JobExp extends Exp {		
+		List<String> _names;
+		List<Exp> _aggregators;
 		Exp _body;
 		
-		public WhenExp(Exp event, Exp body) {
-			_event = event;
+		public JobExp(List<String> names, List<Exp> aggregators, Exp body) {
+			_names = names;
+			_aggregators = aggregators;
 			_body = body;
 		}
 		
-		public Exp event() { return _event; }
+		public List<String> names() { return _names; }
+		public List<Exp> aggregators() { return _aggregators; }
 		public Exp body() { return _body; }
 		
 		public <T,U> T accept(Visitor<T,U> visitor, Env<U> env) throws ProgramError {
@@ -978,9 +990,9 @@ public interface AST {
 		public T visit(AST.DerefExp e, Env<U> env) throws ProgramError; 
 		public T visit(AST.AssignExp e, Env<U> env) throws ProgramError; 
 		public T visit(AST.FreeExp e, Env<U> env) throws ProgramError;
-		public T visit(AST.EventExp e, Env<U> env) throws ProgramError; 
-		public T visit(AST.AnnounceExp e, Env<U> env) throws ProgramError; 
-		public T visit(AST.WhenExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.AggregatorExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.EmitExp e, Env<U> env) throws ProgramError; 
+		public T visit(AST.JobExp e, Env<U> env) throws ProgramError; 
 		public T visit(AST.PrintExp e, Env<U> env) throws ProgramError; 
 		public T visit(AST.SeqExp e, Env<U> env) throws ProgramError; 
 	}	

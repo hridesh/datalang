@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import datalang.AST.*;
 import datalang.parser.*;
 
+@SuppressWarnings("deprecation")
 public class Reader {
 	
 	public Program read() throws IOException {
